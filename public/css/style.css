@@ -1,0 +1,14 @@
+.header {
+  padding-right: 24%;
+  color: orange;
+  text-align: right;
+  font-family: sans-serif;
+}
+
+.rightSideContent {
+  margin: auto 0;
+}
+
+#gif {
+  padding-left: 40%;
+}

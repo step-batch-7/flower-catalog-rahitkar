@@ -22,3 +22,7 @@ body {
 #gif {
   padding-left: 40%;
 }
+
+.hide {
+  visibility: hidden;
+}

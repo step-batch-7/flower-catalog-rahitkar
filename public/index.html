@@ -6,16 +6,29 @@
     <title>Flower Catalog Website</title>
   </head>
   <body>
+
+    <script>
+      const disappear = function() {
+        document.getElementById('gif').classList.add('hide');
+        setTimeout(()=> {document.getElementById('gif').classList.remove('hide');},1000)
+      }
+    </script>
+
     <h1 class="homeHeader">Flower Catalog</h1>
     <hr />
     <div style="display: flex; justify-content: flex-start;">
       <img src="./img/freshorigins.jpg" alt="" />
       <div class="rightSideContent">
-          <ul>
-            <li><a href="./Abeliophyllum.html">Abeliophyllum</a></li>
-            <li><a href="./Agerantum.html">Agerantum</a></li>
-          </ul>
-        <img id="gif" src="./img/animated-flower-image-0021.gif" />
+        <ul>
+          <li><a href="./Abeliophyllum.html">Abeliophyllum</a></li>
+          <li><a href="./Agerantum.html">Agerantum</a></li>
+        </ul>
+        <div id="mrDiv"></div>
+        <img
+          id="gif"
+          src="./img/animated-flower-image-0021.gif"
+          onclick="disappear()"
+        />
         <a href="">Guest book</a>
       </div>
     </div>

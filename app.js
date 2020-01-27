@@ -12,7 +12,9 @@ const updateComments = (previousComment, newComment) => {
     commentList: `${newComment.comment}`
   };
   comments.unshift(resentComment);
-  fs.writeFileSync('./dataBase.json',comments);
+  console.log(comments);
+  
+  fs.writeFileSync('./dataBase/comments.json',JSON.stringify(comments));
   return comments;
 };
 

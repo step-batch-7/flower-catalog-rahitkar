@@ -1,43 +1,11 @@
 const fs = require("fs");
 const Response = require("./lib/response");
 const CONTENT_TYPES = require("./lib/mimeType");
+const {serveGuestBook, servePost} = require("./lib/serveGuestPages");
 
 const STATIC_FOLDER = `${__dirname}/public`;
 
-const updateComments = (previousComment, newComment) => {
-  const comments = previousComment.slice();
-  const resentComment = {
-    dateTime: new Date(),
-    name: `${newComment.name}`,
-    commentList: `${newComment.comment}`
-  };
-  comments.unshift(resentComment);
-  
-  fs.writeFileSync('./dataBase/comments.json',JSON.stringify(comments));
-  // return comments;
-};
 
-const loadComments = () => {
-  const comments = fs.readFileSync("./dataBAse/comments.json");
-  return JSON.parse(comments);
-};
-
-const servePost = req => {
-  const path = `${STATIC_FOLDER}${req.url}`;
-  updateComments(loadComments(), req.body);
-
-  const updatedComments = loadComments();
-  
-  const comments = updatedComments.reduce(getTableHtml, "");
-  const content = fs.readFileSync(path, 'utf8');
-  const newContent = content.replace("__COMMENTS__", comments);
-  const res = new Response();
-  res.setHeader("Content-Length", newContent.length);
-  res.setHeader("Content-Type", "text/html");
-  res.statusCode = 200;
-  res.body = newContent;
-  return res;
-};
 
 const serveHomePage = () => {
   const res = new Response();
@@ -64,31 +32,6 @@ const serveStaticFile = req => {
   res.setHeader("Content-Type", type);
   res.statusCode = 200;
   res.body = content;
-  return res;
-};
-
-const getTableHtml = (previousComment, comment) => {
-  const html = `
-  <tr>
-    <td>${comment.dateTime}</td>
-    <td>${comment.name}</td>
-    <td>${comment.commentList}</td>
-  </tr>`;
-  previousComment += html;
-  return previousComment;
-};
-
-const serveGuestBook = () => {
-  const path = `${STATIC_FOLDER}/guestBook.html`;
-  const content = fs.readFileSync(path, "utf8");
-  const comments = loadComments().reduce(getTableHtml, "");
-
-  const newContent = content.replace("__COMMENTS__", comments);
-  const res = new Response();
-  res.setHeader("Content-Length", newContent.length);
-  res.setHeader("Content-Type", "text/html");
-  res.statusCode = 200;
-  res.body = newContent;
   return res;
 };
 

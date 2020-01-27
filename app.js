@@ -12,15 +12,22 @@ const updateComments = (previousComment, newComment) => {
     commentList: `${newComment.comment}`
   };
   comments.unshift(resentComment);
-  console.log(comments);
   
   fs.writeFileSync('./dataBase/comments.json',JSON.stringify(comments));
-  return comments;
+  // return comments;
+};
+
+const loadComments = () => {
+  const comments = fs.readFileSync("./dataBAse/comments.json");
+  return JSON.parse(comments);
 };
 
 const servePost = req => {
   const path = `${STATIC_FOLDER}${req.url}`;
-  const updatedComments = updateComments(loadComments(), req.body);
+  updateComments(loadComments(), req.body);
+
+  const updatedComments = loadComments();
+  
   const comments = updatedComments.reduce(getTableHtml, "");
   const content = fs.readFileSync(path, 'utf8');
   const newContent = content.replace("__COMMENTS__", comments);
@@ -58,10 +65,6 @@ const serveStaticFile = req => {
   res.statusCode = 200;
   res.body = content;
   return res;
-};
-const loadComments = () => {
-  const comments = fs.readFileSync("./dataBAse/comments.json");
-  return JSON.parse(comments);
 };
 
 const getTableHtml = (previousComment, comment) => {

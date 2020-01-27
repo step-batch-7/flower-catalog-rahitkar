@@ -4,6 +4,32 @@ const CONTENT_TYPES = require("./lib/mimeType");
 
 const STATIC_FOLDER = `${__dirname}/public`;
 
+const updateComments = (previousComment, newComment) => {
+  const comments = previousComment.slice();
+  const resentComment = {
+    dateTime: new Date(),
+    name: `${newComment.name}`,
+    commentList: `${newComment.comment}`
+  };
+  comments.unshift(resentComment);
+  fs.writeFileSync('./dataBase.json',comments);
+  return comments;
+};
+
+const servePost = req => {
+  const path = `${STATIC_FOLDER}${req.url}`;
+  const updatedComments = updateComments(loadComments(), req.body);
+  const comments = updatedComments.reduce(getTableHtml, "");
+  const content = fs.readFileSync(path, 'utf8');
+  const newContent = content.replace("__COMMENTS__", comments);
+  const res = new Response();
+  res.setHeader("Content-Length", newContent.length);
+  res.setHeader("Content-Type", "text/html");
+  res.statusCode = 200;
+  res.body = newContent;
+  return res;
+};
+
 const serveHomePage = () => {
   const res = new Response();
   const path = `${STATIC_FOLDER}/index.html`;
@@ -58,13 +84,17 @@ const serveGuestBook = () => {
   res.setHeader("Content-Type", "text/html");
   res.statusCode = 200;
   res.body = newContent;
-  console.log(res);
   return res;
 };
 
 const findHandler = req => {
+  console.log(req);
+  
   if (req.method === "GET" && req.url === "/guestBook.html") {
     return serveGuestBook;
+  }
+  if (req.method === "POST" && req.url === "/guestBook.html") {
+    return servePost;
   }
   if (req.method === "GET" && req.url === "/") {
     return serveHomePage;

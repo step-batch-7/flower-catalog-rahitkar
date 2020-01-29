@@ -2,6 +2,19 @@ body {
   padding: 0% 8% 0%;
 }
 
+table,th,td {
+  border: 1px solid black;
+  border-collapse: collapse;
+  background-color: whitesmoke;
+  box-shadow: 4px 4px rgb(214, 212, 212);
+}
+
+th,td {
+  padding: 8px;
+  text-align: left;
+  word-wrap: break-word;
+}
+
 .homeHeader {
   padding-right: 8%;
   color: orange;

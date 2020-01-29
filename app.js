@@ -36,7 +36,6 @@ const serveStaticFile = req => {
 };
 
 const findHandler = req => {
-  console.log(req);
   
   if (req.method === "GET" && req.url === "/guestBook.html") {
     return serveGuestBook;

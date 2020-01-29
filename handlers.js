@@ -1,66 +1,15 @@
 const fs = require("fs");
 const CONTENT_TYPES = require("./lib/mimeType");
+const { getTableHtml } = require("./lib/getTableHtml");
+const { loadComments, updateComments } = require("./lib/comment");
+const { App } = require("./app");
 
 const STATIC_FOLDER = `${__dirname}`;
 
-const parseParams = (query, keyValue) => {
-  const [key, value] = keyValue.split("=");
-  query[key] = decodeURIComponent(value.replace(/\+/g, " "));
-  return query;
-};
-
-const readParams = keyValuePairs => {
-  return keyValuePairs.split("&").reduce(parseParams, {});
-};
-
-const updateComments = (previousComment, newComment) => {
-  const comment = readParams(newComment);
-
-  const comments = previousComment.slice();
-  const resentComment = {
-    dateTime: new Date(),
-    name: `${comment.name}`,
-    commentList: `${comment.comment}`
-  };
-  comments.unshift(resentComment);
-
-  fs.writeFileSync(
-    `${STATIC_FOLDER}/dataBase/comments.json`,
-    JSON.stringify(comments)
-  );
-};
-
-const loadComments = () => {
-  const comments = fs.readFileSync(
-    `${STATIC_FOLDER}/dataBase/comments.json`,
-    "utf8"
-  );
-  return JSON.parse(comments);
-};
-
-const getTableHtml = (previousComment, comment) => {
-  let newComment = comment.commentList.replace(/ /g, "&nbsp");
-  const html = `
-  <tr>
-    <td>${comment.dateTime}</td>
-    <td>${comment.name}</td>
-    <td>${newComment.replace(/\n/g, "<br>")}</td>
-  </tr>`;
-  previousComment += html;
-  return previousComment;
-};
-
 const servePost = function(req, res) {
-  const path = `${STATIC_FOLDER}/public${req.url}`;
-
-  let body = "";
-  req.on("data", chunk => (body += chunk));
-  req.on("end", () => {
-    updateComments(loadComments(), body);
-  });
-
+  updateComments(loadComments(), req.body);
   res.statusCode = 303;
-  res.setHeader('location','guestBook.html')
+  res.setHeader("location", "guestBook.html");
   res.end();
 };
 
@@ -73,31 +22,27 @@ const serveGuestBook = function(req, res) {
   res.setHeader("Content-Length", newContent.length);
   res.setHeader("Content-Type", "text/html");
   res.statusCode = 200;
+  console.log(">>>>>>>>>>>>", newContent);
   res.write(newContent);
   res.end();
 };
 
-const serveHomePage = function(req, res) {
-  const content = fs.readFileSync(`${STATIC_FOLDER}/public/index.html`);
-  res.setHeader("Content-Type", "text/html");
-  res.setHeader("Content-Length", content.length);
-  res.write(content);
-  res.end();
-};
-
-const defaultResponse = function(req, res) {
+const serveNotFound = function(req, res) {
   res.writeHead(404);
-  res.end('Not Found');
+  res.end("Not Found");
 };
 
-const serveStaticFile = (req, res) => {
-  const path = `${STATIC_FOLDER}/public/${req.url}`;
-  const stat = fs.existsSync(path) && fs.statSync(path);
+const serveStaticFile = (req, res, next) => {
+  const publicFolder = `${STATIC_FOLDER}/public`;
+  const path = req.url === "/" ? "/index.html" : req.url;
+  const absolutePath = `${publicFolder}${path}`;
+  const stat = fs.existsSync(absolutePath) && fs.statSync(absolutePath);
   if (!stat || !stat.isFile()) {
-    defaultResponse(req, res);
+    next();
+    return;
   }
-  const content = fs.readFileSync(path);
-  const [, extension] = path.split(".");
+  const content = fs.readFileSync(absolutePath);
+  const [, extension] = absolutePath.split(".");
   const type = CONTENT_TYPES[extension];
   res.setHeader("Content-Length", content.length);
   res.setHeader("Content-Type", type);
@@ -106,10 +51,25 @@ const serveStaticFile = (req, res) => {
   res.end();
 };
 
-module.exports = {
-  serveGuestBook,
-  servePost,
-  serveHomePage,
-  serveStaticFile,
-  defaultResponse
+const readBody = function(req, res, next) {
+  let data = "";
+  req.on("data", chunk => (data += chunk));
+  req.on("end", () => {
+    req.body = data;
+    next();
+  });
 };
+
+const app = new App();
+console.log(app);
+
+app.use(readBody);
+
+app.get("/guestBook.html", serveGuestBook);
+app.get("", serveStaticFile);
+app.get("", serveNotFound);
+
+app.post("/guestBook.html", servePost);
+app.post("", serveNotFound);
+
+module.exports = { app };

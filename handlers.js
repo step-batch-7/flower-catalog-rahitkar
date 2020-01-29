@@ -15,7 +15,6 @@ const readParams = keyValuePairs => {
 
 const updateComments = (previousComment, newComment) => {
   const comment = readParams(newComment);
-  console.log(comment);
 
   const comments = previousComment.slice();
   const resentComment = {
@@ -53,7 +52,6 @@ const getTableHtml = (previousComment, comment) => {
 
 const servePost = function(req, res) {
   const path = `${STATIC_FOLDER}/public${req.url}`;
-  console.log(path);
 
   let body = "";
   req.on("data", chunk => (body += chunk));
@@ -87,7 +85,10 @@ const serveHomePage = function(req, res) {
   res.end();
 };
 
-const defaultResponse = function(req, res) {};
+const defaultResponse = function(req, res) {
+  res.writeHead(404);
+  res.end('Not Found');
+};
 
 const serveStaticFile = (req, res) => {
   const path = `${STATIC_FOLDER}/public/${req.url}`;

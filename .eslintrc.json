@@ -80,8 +80,9 @@
   },
   "overrides": [
     {
-      "files": ["*Test.js"],
+      "files": ["*Test.js", "config.js"],
       "rules": {
+        "no-process-env": "off",
         "max-len": "warn",
         "no-magic-numbers": "off",
         "max-statements": "off"

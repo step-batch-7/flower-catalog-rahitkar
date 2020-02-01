@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "export DATA_STORE=$(pwd)/test/resources/resourceComments.json; nyc mocha",
+    "start": "export DATA_STORE=$(pwd)/dataBase/comments.json; node httpServer.js"
   },
   "repository": {
     "type": "git",
@@ -15,5 +16,9 @@
   "bugs": {
     "url": "https://github.com/step-batch-7/flower-catalog-rahitkar/issues"
   },
-  "homepage": "https://github.com/step-batch-7/flower-catalog-rahitkar#readme"
+  "homepage": "https://github.com/step-batch-7/flower-catalog-rahitkar#readme",
+  "devDependencies": {
+    "mocha": "^7.0.1",
+    "supertest": "^4.0.2"
+  }
 }
